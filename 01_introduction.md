@@ -44,3 +44,42 @@ Possible JSON response:
   }
 }
 ```
+
+## What is Relay?
+
+Relay is a framework for building data-driven React applications.
+
+Example React component with its Relay data requirements:
+```react
+const UserCard = ({ user }) =>
+  <div className="user-card">
+    Name: {user.firstName} {user.lastName}
+    Email: {user.email}
+  </div>;
+
+UserCard = Relay.createContainer(UserCard, {
+  fragments: {
+    user: () => Relay.QL`
+      fragment on User {
+        firstName
+        lastName
+        email
+      }
+    `
+  }
+});
+```
+
+## Why GraphQL?
+
+Some tasks an Application Programming Interface (API) can do:
+* Act as a controller between protected raw data services and software clients.
+* Parse a client request for access rights and enforce them.
+* Construct SQL join statements to satisfy a client request efficiently.
+* Process raw data into structures demanded by clients.
+* Respond with data in specific formats such as JSON and XML.
+
+### RESTful APIs versus GraphQL APIs
+
+RESTful APIs come with some dependencies on browser implementations of HTTP.
+Using only HTTP methods and response codes limits what we can do with RESTful APIs and developers usually resort to customizing and interpreting the request payload instead.
