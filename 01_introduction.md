@@ -83,3 +83,6 @@ Some tasks an Application Programming Interface (API) can do:
 
 RESTful APIs come with some dependencies on browser implementations of HTTP.
 Using only HTTP methods and response codes limits what we can do with RESTful APIs and developers usually resort to customizing and interpreting the request payload instead.
+
+GraphQL is protocol-agnostic and does not depend on HTTP.
+However, HTTP is one channel where we can do GraphQL communication.
