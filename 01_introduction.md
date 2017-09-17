@@ -180,3 +180,16 @@ When we need to paginate a list, we have a few models we can use:
 * The connection model: The actual data is represented as nodes within edges.
 
 ## Setting up a simple GraphQL server
+
+There are many GraphQL implementations (JavaScript, Java, Ruby, Scala, Python, etc).
+
+We'll be using the JavaScript implementation: https://github.com/graphql/graphql-js
+
+### Installing Node.js
+
+NVM (Node version manager) targets the task of managing multiple Node.js versions.
+
+* `node`: we use this command to execute a JavaScript file on the server.
+* `npm`: we use this command to install, uninstall, or update a Node.js package.
+
+### Defining the Schema
