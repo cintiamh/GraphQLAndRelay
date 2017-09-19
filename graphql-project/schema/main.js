@@ -15,5 +15,7 @@ const queryType = new GraphQLObjectType({
 });
 
 const mySchema = new GraphQLSchema({
-  // root query & root mutation definitions
+  query: queryType
 });
+
+module.exports = mySchema;

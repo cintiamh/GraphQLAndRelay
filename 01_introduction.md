@@ -257,3 +257,16 @@ const queryType = new GraphQLObjectType({
   }
 });
 ```
+
+Under the `queryType` definition, update the `mySchema` object to use `queryType` for its `query` configuration property:
+```javascript
+const mySchema = new GraphQLSchema({
+  query: queryType
+});
+```
+
+The `fields` property on a GraphQL object is where we define the fields that can be used in a GraphQL query to ask about that object.
+
+Every field in a GraphQL object can define a `resolve()` function. The `resolve()` function is what the `graphql` library executes when it tries to answer queries asking about that field.
+
+### Using the schema
