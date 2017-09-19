@@ -270,3 +270,75 @@ The `fields` property on a GraphQL object is where we define the fields that can
 Every field in a GraphQL object can define a `resolve()` function. The `resolve()` function is what the `graphql` library executes when it tries to answer queries asking about that field.
 
 ### Using the schema
+
+We need to create an interface between the user and the schema.
+* user input: GraphQL query
+* output for user: GraphQL JSON response
+
+Example with simplest interface using Linux command.
+
+Create an `index.js` file:
+```
+$ touch index.js
+```
+
+With the following content:
+```javascript
+const { graphql } = require('graphql');
+const readline = require('readline');
+const mySchema = require('./schema/main');
+
+const rli = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+rli.question('Client request: ', inputQuery => {
+  graphql(mySchema, inputQuery).then(result => {
+    console.log('Server answer: ', result.data);
+  });
+  rli.close();
+});
+```
+
+And then when you run the server side:
+```
+$ node index.js
+$ Client request: { hello }
+$ Server answer:  { hello: 'world' }
+```
+
+#### Rolling the Dice
+
+We will make it simulate a simple 2-dice roll:
+
+We expect to get:
+```
+$ node index.js
+$ Client request: { diceRoll }
+$ Server answer:  { diceRoll: [2, 5] }
+```
+
+We use a `GraphQLList` to represent an array type, and `GraphQLInt` type to represent the elements of our random integers array.
+
+Update the `schema/main.js`:
+```javascript
+const {
+  // ...
+  GraphQLInt,
+  GraphQLList
+} = require('graphql');
+
+const roll = () => Math.floor(6 * Math.random()) + 1;
+
+const queryType = new GraphQLObjectType({
+  name: 'RootQuery',
+  fields:{
+    // ...
+    diceRoll: {
+      type: new GraphQLList(GraphQLInt),
+      resolve: () => [roll(), roll()]
+    }
+  }
+});
+```
