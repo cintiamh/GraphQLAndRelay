@@ -377,3 +377,163 @@ args: {
 ```
 
 ### Setting up MongoDB
+
+Install mongoDB using Homebrew:
+```
+$ brew install mongodb
+$ sudo mkdir -p /data/db
+$ sudo chown -R $USER /data
+```
+
+Start the MongoDB server:
+```
+$ mongod
+```
+
+If everything worked fine, we'll be able to test the `mongo` CLI:
+```
+$ mongo
+> db.getName()
+test
+>
+```
+
+Let's create a new collection to hold some test data.
+
+```
+> db.createCollection("users")
+{ "ok" : 1 }
+>
+```
+
+Now we can use the `users` collection to add documents that represent users:
+```
+> db.users.insertOne({
+    firstName: "John",
+    lastName: "Doe"
+  })
+```
+
+We get the answer:
+```
+{
+  "acknowledged" : true,
+  "insertedId" : ObjectId("59c190140b511f7a57be21f8")
+}
+```
+
+Inserting a second user:
+```
+> db.users.insertOne({
+... firstName: "Jane",
+... lastName: "Doe",
+... })
+```
+
+We can now verify the number of users:
+```
+> db.users.count()
+2
+```
+
+To communicate with a MongoDB from a Node.js application, we need to install a driver.
+
+https://mongodb.github.io/node-mongodb-native/
+
+```
+$ npm i mongodb --save
+```
+
+Now we can use this `mongodb` npm package in our `index.js` file:
+```javascript
+const { MongoClient } = require('mongodb');
+const assert = require('assert');
+
+const MONGO_URL = 'mongodb://localhost:27017/test';
+
+MongoClient.connect(MONGO_URL, (err, db) => {
+  assert.equal(null, err);
+  console.log('Connected to MongoDB server');
+
+  // The readline interface code
+});
+```
+
+We can start with a simple query to check the users count:
+```
+{ usersCount }
+```
+
+To be able to use a MongoDB driver call inside our schema in `main.js` file, we need access to the `db` object that the `MongoClient.connect()` function exposed for us in the callback.
+
+Update the `index.js` file:
+```javascript
+graphql(mySchema, inputQuery, {}, { db }).then(result => {
+  console.log('Server answer: ', result.data);
+  db.close(() => rli.close());
+});
+```
+
+And the fields in main.js:
+```javascript
+fields: {
+  // ...
+  usersCount: {
+    type: GraphQLInt,
+    resolve: (_, args, { db }) =>
+      db.collection('users').count()
+  }
+}
+```
+
+### Setting up an HTTP interface
+
+We can use the `Express.js` node framework to handle and parse HTTP requests, and within an `Express.js` route, we can use the `graphql()` function.
+
+There is a GraphQL Express.js middleware we can use: `express-graphql`.
+
+```
+$ npm i express express-graphql --save
+```
+
+Now we can use them in our `index.js` server file:
+```javascript
+const graphqlHTTP = require('express-graphql');
+const express = require('express');
+
+const app = express();
+```
+
+At this point, we'll use Express.js routing instead of the command line:
+```javascript
+app.use('/graphql', graphqlHTTP({
+  schema: mySchema,
+  context: { db }
+}));
+
+app.listen(3000, () => {
+  console.log('Running Express.js on port 3000');
+});
+```
+
+The `app.use` line defines a route `/graphql` and delegates the handling of that route to the `express-graphql` middleware.
+
+Now we're able to access this URL in the browser:
+http://localhost:3000/graphql?query={usersCount}
+
+### The GraphiQL editor
+
+The `graphqlHTTP()` middleware function accepts another property on its parameter object `graphiql`:
+
+Update the `index.js` file:
+```javascript
+app.use('/graphql', graphqlHTTP({
+  schema: mySchema,
+  context: { db },
+  graphiql: true
+}));
+```
+
+Now if you access http://localhost:3000/graphql, we'll get an instance of the GraphiQL editor running locally on our GraphQL schema.
+
+GraphiQL is an interactive playground where we can explore our GraphQL queries and mutations before we officially use them.
