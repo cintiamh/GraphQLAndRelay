@@ -193,3 +193,67 @@ NVM (Node version manager) targets the task of managing multiple Node.js version
 * `npm`: we use this command to install, uninstall, or update a Node.js package.
 
 ### Defining the Schema
+
+Create the directory:
+```
+$ mkdir graphql-project
+$ cd graphql-project
+$ touch .gitignore
+```
+
+`.gitignore` file content:
+```
+.DS_Store
+.idea
+*.iml
+node_modules
+package-lock.json
+```
+
+Create a `package.json` file:
+```
+$ npm init -y
+```
+
+Install the `graphql` library:
+```
+$ npm i graphql --save
+```
+
+Create a `schema` directory at the root level and create a `main.js` file there.
+```
+$ mkdir schema && touch schema/main.js
+```
+
+We need to import a few classes in `main.js` from the `graphql` package:
+```javascript
+const {
+  GraphQLSchema,
+  GraphQLObjectType,
+  GraphQLString
+} = require('graphql');
+```
+
+The `GraphQLSchema` is the class we can use to instantiate our example schema.
+```javascript
+const mySchema = new GraphQLSchema({
+  // root query & root mutation definitions
+});
+```
+
+A GraphQL schema can expose multiple capabilities:
+* read data: we need to define a query property on the schema.
+* insert, update, or delete: we need to define a mutation property on the schema.
+
+The query and mutation properties are instances of the `GraphQLObjectType` class.
+```javascript
+const queryType = new GraphQLObjectType({
+  name: 'RootQuery',
+  fields:{
+    hello: {
+      type: GraphQLString,
+      resolve: () => 'world'
+    }
+  }
+});
+```
