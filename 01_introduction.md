@@ -342,3 +342,38 @@ const queryType = new GraphQLObjectType({
   }
 });
 ```
+
+#### Using field arguments
+
+The client can ask a query such as:
+```
+{ diceRoll(count: 5) }
+```
+
+In `schema/main.js` you can update the diceRoll query:
+
+```javascript
+diceRoll: {
+  type: new GraphQLList(GraphQLInt),
+  args: {
+    count: { type: GraphQLInt }
+  },
+  resolve: (_, args) => {
+    let rolls = [];
+    for (let i = 0; i < args.count; i++) {
+      rolls.push(roll());
+    }
+    return rolls;
+  }
+}
+```
+
+You can also set a defaultValue:
+```javascript
+args: {
+  count: { type: GraphQLInt },
+  defaultValue: 2
+},
+```
+
+### Setting up MongoDB
