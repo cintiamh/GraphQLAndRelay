@@ -2,6 +2,7 @@
 
 1. [Documents and operations](#documents-and-operations)
 2. [Fields](#fields)
+3. [Variables](#variables)
 
 ## Documents and operations
 
@@ -39,3 +40,61 @@ The GraphQL parser will ignore the following tokens:
 * most white spaces.
 
 ## Fields
+
+Here is a possible response to the `ArticleComments` query:
+```json
+{
+  "article": {
+    "comments": [
+      {
+        "commentId": 1,
+        "formattedBody": "GraphQL is <strong>cool</strong>",
+        "timestamp": "12/12/2015 - 15:15"
+      },
+      {
+        "commentId": 2,
+        "formattedBody": "What's wrong with <em>REST</em>!",
+        "timestamp": "12/12/2015 - 15:25"
+      }
+    ]
+  }
+}
+```
+
+This response has sections that represent the different fields in our GraphQL query.
+
+A field can be mapped to either a primitive value, in the response, or to an object or array of objects in the response.
+
+You can think of fields as functions; they return something in the response.
+
+They also take arguments, for example the `article` fields takes an integer argument `articleId`.
+
+On the server side, we can use field arguments to customize the response to be resolved by the field.
+
+The `article` field is also a property on what is called the `root query object`.
+A `root query object` is an entry point; one of the possible many points on the graph that we can start with in our queries.
+
+* `selection sets`: the curly braces in the GraphQL query. Selection sets are nestable.
+* `complex fields`: fields that map to objects or an array of objects in GraphQL.
+
+When we ask for a complex field, we need a new selection set until the innermost selection set of the GraphQL query that contain fields that resolve to scalar values.
+
+A common error message when this doesn't happen is: `Field "article" of type "Article" must have a sub selection.`
+
+## Variables
+
+In the example above we hardcoded the value of `articleId` in the query string itself.
+
+To make the query reusable, we need to make it generic by using GraphQL variable as the input for `articleId`:
+
+```graphql
+query ArticleComments($articleId: Int!) {
+  article(articleId: $articleId) {
+    comments: {
+      commentId
+      formattedBody
+      timestamp
+    }
+  }
+}
+```
