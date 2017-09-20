@@ -6,6 +6,7 @@
 4. [Directives](#directives)
 5. [Aliases](#aliases)
 6. [Fragments](#fragments)
+7. [Mutations](#mutations)
 
 ## Documents and operations
 
@@ -232,3 +233,74 @@ query TwoArticles: {
 ```
 
 ## Fragments
+
+We can use GraphQL fragments to avoid repetition and compose our main query using a smaller query fragment.
+```graphql
+query TwoArticles {
+  firstArticle: article(articleId: 42) {
+    ...CommentList
+  }
+  secondArticle: article(articleId: 43) {
+    ...CommentList
+  }
+}
+
+fragment CommentList on Article {
+  comments {
+    commentId
+    formattedBody
+    timestamp
+  }
+}
+```
+
+A fragment is just a partial operation; we can't use it on its own, but we can use it and reuse it inside a full operation.
+
+When a GraphQL server sees the spread operator followed by a name anywhere in a GraphQL query, it will look for a fragment defined using that same name.
+
+We can use variables in fragments. When a fragment gets used by an operation, it gets access to the variables defined by that operation.
+```graphql
+query TwoArticles($showAuthor: Boolean!) {
+  firstArticle: article(articleId: 42) {
+    ...CommentList
+  }
+  secondArticle: article(articleId: 43) {
+    ...CommentList
+  }
+}
+
+fragment CommentList on Article {
+  comments {
+    commentId
+    formattedBody
+    timestamp
+    author @include(if: $showAuthor) {
+      name
+    }
+  }
+}
+```
+
+We can also use fragments directly inline without giving them a name:
+```graphql
+query ArticleOrComment {
+  node(nodeId: 42) {
+    formattedBody
+    timestamp
+    ... on Article {
+      nodeId: articleId
+    }
+    ... on Comment {
+      nodeId: commentId
+    }
+  }
+}
+```
+
+Inline fragments are useful inside a type that implements multiple objects.
+
+The `node` field is part of Relay and it can represent any object in the GraphQL schema.
+
+Inline fragments can also be used to apply a directive to a group of fields.
+
+## Mutations
