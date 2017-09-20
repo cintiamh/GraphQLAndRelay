@@ -4,6 +4,7 @@
 2. [Fields](#fields)
 3. [Variables](#variables)
 4. [Directives](#directives)
+5. [Aliases](#Aliases)
 
 ## Documents and operations
 
@@ -122,3 +123,54 @@ For an HTTP interface, our operation request can be send as:
 * If we define a variable, it has to be used at least once in that operation.
 
 ## Directives
+
+We can provide options to alter the GraphQL runtime execution using directives.
+Directives have three characteristics:
+
+* A unique name to identify them.
+* A list of arguments, just like fields. Arguments may accept values of any input type.
+* A list of locations where the use of the directive is accepted.
+
+There are two main built-in directives that should be supported by a GraphQL executor:
+
+* `@include`, which accepts a Boolean `if` argument, and directs the GraphQL executor to include a field or a fragment only when the `if` argument is true.
+  - `field @include(if: $BooleanValue)`
+* `@skip`, which accepts a Boolean `if` argument, and directs the GraphQL executor to skip a field or fragment when the `if` argument is true.
+  - `field @skip(if: $BooleanValue)`
+
+Directives are commonly used with variables to customize the response based on variable's values.
+
+```graphql
+query ArticleComments($articleId: Int!, $showEmails: Boolean!) {
+  article(articleId: $articleId) {
+    comments: {
+      commentId
+      formattedBody
+      timestamp
+      author {
+        name
+        email @include(if: $showEmails)
+        website @skip(if: $showEmails)
+      }
+    }
+  }
+}
+```
+
+We can use directives with complex fields as well.
+```graphql
+query ArticleComments($articleId: Int!, $showAuthor: Boolean!) {
+  article(articleId: $articleId) {
+    comments: {
+      commentId
+      formattedBody
+      timestamp
+      author @include(if: $showAuthor) {
+        name
+      }
+    }
+  }
+}
+```
+
+## Aliases
