@@ -4,7 +4,8 @@
 2. [Fields](#fields)
 3. [Variables](#variables)
 4. [Directives](#directives)
-5. [Aliases](#Aliases)
+5. [Aliases](#aliases)
+6. [Fragments](#fragments)
 
 ## Documents and operations
 
@@ -174,3 +175,60 @@ query ArticleComments($articleId: Int!, $showAuthor: Boolean!) {
 ```
 
 ## Aliases
+
+Sometimes, the data exposed by the server might have different property names than what the UI is using.
+
+For example, if the UI expects to receive `responses` instead of `comments`:
+```json
+{
+  "post": {
+    "responses": [
+      {
+        "responseId": 1,
+        "formattedBody": "GraphQL is <strong>cool</strong>",
+        "timestamp": "12/12/2015 - 15:15"
+      },
+      {
+        "responseId": 2,
+        "formattedBody": "What's wrong with <em>REST</em>!",
+        "timestamp": "12/12/2015 - 15:25"
+      }
+    ]
+  }
+}
+```
+
+We can use aliases on any field to customize its appearance in the response:
+```graphql
+query ArticleResponses {
+  post: article(articleId: 42) {
+    responses: comments {
+      responseId: commentId
+      formattedBody
+      timestamp
+    }
+  }
+}
+```
+
+We can also use aliases to ask for the same field multiple times:
+```graphql
+query TwoArticles: {
+  firstArticle: article(articleId: 42) {
+    comments {
+      commentId
+      formattedBody
+      timestamp
+    }
+  }
+  secondArticle: article(articleId: 43) {
+    comments {
+      commentId
+      formattedBody
+      timestamp
+    }
+  }
+}
+```
+
+## Fragments
