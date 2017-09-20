@@ -3,6 +3,7 @@
 1. [Documents and operations](#documents-and-operations)
 2. [Fields](#fields)
 3. [Variables](#variables)
+4. [Directives](#directives)
 
 ## Documents and operations
 
@@ -98,3 +99,26 @@ query ArticleComments($articleId: Int!) {
   }
 }
 ```
+
+Notice how we first define the variable at the top of our query operation (`$articleId: Int!`).
+This sets the scope of the variable `$articleId` so that we can use it anywhere inside our query operation.
+The type of `$articleId` variable is `Int`; the trailing `!` after the type indicates that this variable is required and can't be null.
+
+To execute the generic query, we supply a JSON object for the `variables` input which we pass to our GraphQL query executor along with the `query` input.
+
+```json
+{
+  "articleId": 42
+}
+```
+
+For an HTTP interface, our operation request can be send as:
+```
+/graphql?query={...}&variables={...}
+```
+
+* Variables have to be unique in a single operation.
+* We can use the same variable name in different operations.
+* If we define a variable, it has to be used at least once in that operation.
+
+## Directives
