@@ -304,3 +304,24 @@ The `node` field is part of Relay and it can represent any object in the GraphQL
 Inline fragments can also be used to apply a directive to a group of fields.
 
 ## Mutations
+
+GraphQL updates data using mutations.
+
+Resolving the mutation will have side effects on some elements of the data on runtime.
+
+A good GraphQL runtime implementation executes multiple GraphQL mutations in a single request in sequence one by one, while it executes multiple GraphQL queries in the same request in parallel.
+
+For mutations, we can use field arguments as data input.
+```graphql
+mutation AddNewComment {
+  addComment(
+    articleId: 42,
+    authorEmail: 'mark@fb.com',
+    markdown: "GraphQL is clearly a **game changer**"
+  ) {
+    id
+    formattedBody
+    timestamp
+  }
+}
+```
