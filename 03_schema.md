@@ -2,6 +2,7 @@
 
 1. [The schema object](#the-schema-object)
 2. [Introspection](#introspection)
+3. [The type system](#the-type-system)
 
 In a GraphQL schema, we define the types and directives that we want the server to support.
 
@@ -115,3 +116,136 @@ query TypeFields {
 The `__type` is a built-in introspective field that should be available in any GraphQL implementation.
 The double underscores naming convention is reserved for the introspective system to avoid naming collisions with user-defined GraphQL types.
 Anything that starts with double underscores is part of the introspective API.
+
+The GraphQL specification document encourages GraphQL tool writers to support Markdown rendering for the description field in their tools.
+
+The `__schema` field is available on the root type of a query.
+
+For example, if we didn't know the name of the `RootQuery` type, we can use the `__schema` field to find it:
+```graphql
+query QueryTypeName {
+  __schema {
+    queryType {
+      name
+    }
+  }
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "__schema": {
+      "queryType": {
+        "name": "RootQuery"
+      }
+    }
+  }
+}
+```
+
+We can also use the introspective API to read other capabilities of a GraphQL schema.
+
+## The type system
+
+GraphQL is a strongly-typed language, and a GraphQL schema should have types for all objects that it uses.
+
+### Scalars and object types
+
+The `GraphQLFieldConfig` object defines a field's type property to be `GraphQLOutputType`.
+An output type in GraphQL can be one of the following:
+
+* A custom type, like `EmployeeType`.
+* `GraphQLScalarType`: represents a scalar value that cannot have fields of its own.
+  - `GraphQLInt`: integer
+  - `GraphQLFloat`: float
+  - `GraphQLString`: string
+  - `GraphQLBoolean`: Boolean
+  - `GraphQLID`: identity value
+* An instance of an object type class, like `GraphQLObjectType`.
+
+### Interfaces and unions
+
+Interfaces and unions are abstract types that can be used to group other types.
+* Interface: used when there are common fields declares on the types of a group. Defines the fields an implementation will contain.
+* Union: used when there are no common fields declared on the types of a group. Defines a list of different implementations.
+
+Let's suppose we have something like:
+```graphql
+const EmployeeType = new GraphQLObjectType({
+  name: 'Employee',
+  fields: {
+    name: { type: GraphQLString },
+    departmentName: { type: GraphQLString }
+  }
+});
+
+const VendorType = new GraphQLObjectType({
+  name: 'Vendor',
+  fields: {
+    name: { type: GraphQLString },
+    companyName: { type: GraphQLString }
+  }
+});
+```
+
+We can extract a common `PersonType` to a interface:
+```graphql
+const PersonType = new GraphQLInterfaceType({
+  name: 'Person',
+  fields: {
+    name: { type: GraphQLString }
+  }
+});
+```
+
+And use `PersonType` in the previous examples:
+```graphql
+const EmployeeType = new GraphQLObjectType({
+  name: 'Employee',
+  fields: {
+    departmentName: { type: GraphQLString }
+  },
+  interfaces: [PersonType]
+});
+
+const VendorType = new GraphQLObjectType({
+  name: 'Vendor',
+  fields: {
+    companyName: { type: GraphQLString }
+  },
+  interfaces: [PersonType]
+});
+```
+
+Let's add a new type that uses our `PersonType` directly:
+```graphql
+const ContactType = new GraphQLObjectType({
+  name: 'Contact',
+  fields: {
+    person: PersonType,
+    phoneNumber: { type: GraphQLString },
+    emailAddress: { type: GraphQLString }
+  }
+});
+```
+
+We can use inline fragments to conditionally ask for `departmentName` or `companyName`:
+```graphql
+query ContactQuery($contactId: Int!) {
+  contact(contactId: $contactId) {
+    person {
+      name
+      ... on Employee {
+        departmentName
+      }
+      ... on Vendor {
+        companyName
+      }
+    },
+    phoneNumber,
+    emailAddress
+  }
+}
+```
