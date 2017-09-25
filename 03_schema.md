@@ -86,3 +86,32 @@ type GraphQLFieldConfig = {
 ```
 
 ## Introspection
+
+The `description` property is used to give clients some details about an object.
+When clients read the schema information, the description of each object will be available to them.
+
+When we try to use a field that is now documented with a description property in GraphiQL, that description appears in a dropdown.
+
+Descriptions also show up in the Docs section of GraphiQL
+For every field, we can see its type and description.
+
+This reading of meta information about our schema is possible because of the introspective nature of GraphQL servers.
+We can use a GraphQL query to ask about the GraphQL schema and what capabilities that schema supports.
+
+```graphql
+query TypeFields {
+  __type(name: "RootQuery") {
+    fields {
+      name
+      description
+      args: {
+        name
+      }
+    }
+  }
+}
+```
+
+The `__type` is a built-in introspective field that should be available in any GraphQL implementation.
+The double underscores naming convention is reserved for the introspective system to avoid naming collisions with user-defined GraphQL types.
+Anything that starts with double underscores is part of the introspective API.
