@@ -354,3 +354,261 @@ const DepartmentType = new GraphQLObjectType({
 ```
 
 ## The resolve function
+
+It's time to talk about the optional `resolve` function in a field configuration object:
+```graphql
+type GraphQLFieldConfig = {
+  type: GraphQLOutputType;
+  args?: GraphQLFieldConfigArgumentMap;
+  resolve?: GraphQLFieldResolveFn;
+  deprecationReason?: string;
+  description?: ?string;
+}
+```
+
+This field can accept four optional arguments:
+```graphql
+type GraphQLFieldResolveFn = (
+  source?: any,
+  args?: {[argName: string]: any},
+  context?: any,
+  info?: GraphQLResolveInfo
+) => any;
+```
+
+### First argument: source
+
+This argument represents the field we're configuring.
+
+```graphql
+const EmployeeType = new GraphQLObjectType({
+  name: 'Employee',
+  fields: () => ({
+    name: {
+      type: GraphQLString,
+      resolve: (obj) => `${obj.firstName} ${obj.lastName}`
+    },
+    boss: { type: EmployeeType },
+  })
+});
+```
+
+### Second argument: args
+
+The value of this argument is an object that is associated with the `args` property that is defined on the field level.
+```graphql
+type GraphQLFieldConfig = {
+  type: GraphQLOutputType;
+  args?: GraphQLFieldConfigArgumentMap;
+  resolve?: GraphQLFieldResolveFn;
+  deprecationReason?: string;
+  description?: ?string;
+}
+```
+
+The `GraphQLFieldConfigArgumentMap` type is a simple object that holds a list of arguments:
+```graphql
+type GraphQLFieldConfigArgumentMap = {
+  [argName: string]: {
+     type: GraphQLInputType;
+     defaultValue?: any;
+     description?: ?string;
+  };
+};
+```
+
+Example:
+```graphql
+const EmployeeType = new GraphQLObjectType({
+  name: 'Employee',
+  fields: () => ({
+    name: {
+      type: GraphQLString,
+      args: {
+        upperCase: { type: GraphQLBoolean }
+      },
+      resolve: (obj, args) => {
+        let fullName = `${obj.firstName} ${obj.lastName}`;
+        return args.upperCase ?
+           fullName.toUpperCase() : fullName;
+      }
+    },
+    boss: { type: EmployeeType }
+  })
+});
+```
+
+### Third argument: context
+
+This argument represents a global context object that the GraphQL executor can pass to all resolver functions.
+It can be used, for example, to represent a database connection, an authentication user session, or a reference to a request-specific cache object.
+
+Here's how we instructed the GraphQL executor to pass a context object to all resolver functions:
+```graphql
+mongodb.MongoClient.connect(MONGO_URL, (err, db) => {
+  # ...
+  app.use('/graphql', graphqlHTTP({
+    schema: mySchema,
+    context: { db },
+    graphiql: true
+  }));
+  # ...
+});
+```
+
+We then used the context third argument in the `usersCount` field to resolve function:
+```graphql
+usersCount: {
+  description: 'Total number of users in the database',
+  type: GraphQLInt,
+  resolve: (_, args, { db }) => db.collection('users').count()
+}
+```
+
+### Fourth argument: info
+
+This argument represents a collection of information about the current execution state.
+
+The field name is helpful if we need to dynamically modify the resolved value of a field.
+
+Example:
+```graphql
+fields: {
+  firstName: fromSnakeCase(GraphQLString),
+  lastName: fromSnakeCase(GraphQLString),
+}
+
+// Assuming that we have a toSnakeCase() function
+// Converts a camelCase string into snake_case
+const fromSnakeCase = GraphQLType => {
+  return {
+    type: GraphQLType,
+    resolve(obj, args, ctx, { fieldName }) {
+      return obj[toSnakeCase(fieldName)];
+    }
+  };
+};
+```
+
+### Resolving with Promises
+
+To work through a GraphQL example with promises, let's assume that we have a very simple database of inspirational quotes in a file:
+
+`data/quotes`:
+```
+The best preparation for tomorrow is doing your best today.
+Life is 10 percent what happens to you and 90 percent how you react to it.
+If opportunity doesn't knock, build a door.
+```
+
+We want to define a GraphQL field to return the most recent quote in our file.
+
+The client would ask this query:
+```graphql
+{ lastQuote }
+```
+
+And the server should respond with the following:
+```json
+{
+  "data": {
+    "lastQuote": "If opportunity doesn't knock, build a door."
+  }
+}
+```
+
+Let's first create a JavaScript promise that resolves with the last line of a given file in `schema/main.js`:
+```javascript
+const fs = require('fs');
+
+const readLastLinePromise = path => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, (err, data) => {
+      if (err) throw reject(err);
+      resolve(data.toString().trim().split('\n').slice(-1)[0]);
+    });
+  });
+};
+```
+
+Here's how we would use this promise:
+```javascript
+readLastLinePromise('data/quotes')
+  .then(line => console.log(line))
+  .catch(error => console.error(error));
+```
+
+Now we define a `lastQuote` field on the `RootQuery` object and resolve it with the promise itself in `schema/main.js`:
+```javascript
+const queryType = new GraphQLObjectType({
+  name: 'RootQuery',
+  fields: {
+    lastQuote: {
+      type: GraphQLString,
+      resolve: () => readLastLinePromise('data/quotes')
+    },
+    // Other fields on RootQuery
+  }
+});
+```
+
+The GraphQL executor is smart enough to see a promise returned and use its resolved value in the response for the query.
+
+We can also use promises to resolve a mutation operation.
+
+We can construct a mutation request to insert a quote with a GraphQL string like this:
+```graphql
+mutation {
+  addQuote(body: "...")
+}
+```
+
+Let's create a mutation on the server in `schema/main.js`:
+```javascript
+const appendLinePromise = (path, line) => {
+  return new Promise((resolve, reject) => {
+    fs.appendFile(path, line, err => {
+      if (err) throw reject(err);
+      resolve(line);
+    });
+  });
+};
+
+const mutationType = new GraphQLObjectType({
+  name: 'RootMutation',
+  fields: {
+    addQuote: {
+      type: GraphQLString,
+      args: {
+        body: { type: GraphQLString }
+      },
+      resolve: (_, args) =>
+        appendLinePromise('data/quotes', args.body)
+    }
+  }
+});
+```
+
+Then, modify the `mySchema` object to include this new `mutationType`:
+```javascript
+const mySchema = new GraphQLSchema({
+  query: queryType,
+  mutation: mutationType
+});
+```
+
+Let's use `addQuote` mutation capability now:
+```graphql
+mutation {
+  addQuote(body: "Try to be a rainbow in someone's cloud.")
+}
+```
+
+The server response will be as follows:
+```json
+{
+  "data": {
+    "addQuote": "Try to be a rainbow in someone's cloud."
+  }
+}
+```
