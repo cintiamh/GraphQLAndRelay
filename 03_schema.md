@@ -4,6 +4,7 @@
 2. [Introspection](#introspection)
 3. [The type system](#the-type-system)
 4. [The resolve function](#the-resolve-function)
+5. [Validation](#validation)
 
 In a GraphQL schema, we define the types and directives that we want the server to support.
 
@@ -610,5 +611,27 @@ The server response will be as follows:
   "data": {
     "addQuote": "Try to be a rainbow in someone's cloud."
   }
+}
+```
+
+## Validation
+
+The GraphQL executor will only execute requests that pass all validation rules. If there are any errors during the validation phase, a list of errors is returned instead of any response from executing the operations.
+
+An example of error message response is as follow:
+```json
+{
+  "errors": [
+    {
+      "message": "Argument "count" has invalid value
+                "7".\nExpected type "Int", found "7".",
+      "locations": [
+        {
+          "line": 2,
+          "column": 19
+        }
+      ]
+    }
+  ]
 }
 ```
