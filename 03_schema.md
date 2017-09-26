@@ -3,6 +3,7 @@
 1. [The schema object](#the-schema-object)
 2. [Introspection](#introspection)
 3. [The type system](#the-type-system)
+4. [The resolve function](#the-resolve-function)
 
 In a GraphQL schema, we define the types and directives that we want the server to support.
 
@@ -306,3 +307,50 @@ query ResumeInformation {
 ```
 
 ### Type modifiers
+
+* `GraphQLList`: When we wrap other types with `GraphQLList` instance, we are representing a list of those types.
+  - `new GraphQLList(GraphQLInt)`
+* `GraphQLNonNull`: When we wrap other types with a `GraphQLNonNull` instance, we are representing the non-null verion of those types. This wrapper enforces that the value it wraps is never null, and the type will raise an error if the value happens to be null.
+  - `name: { type: new GraphQLNonNull(GraphQLString) }`
+
+These two type modifiers are also known as type makers because they make a new type, which wraps the original type.
+
+### Enums
+
+When the scalar value that we want to represent for a field has a list of possible values in a set, and it can only be one of those values, we can represent the field in a GraphQL schema as an ENUM type.
+
+For example, an employee's contract can be full-time, part-time, of shift-work.
+```graphql
+const ContractType = new GraphQLEnumType({
+  name: 'Contract',
+  values: {
+    FULLTIME: { value: 1 },
+    PARTTIME: { value: 2 },
+    SHIFTWORK: { value: 3 }
+  }
+});
+```
+
+`ContractType` is a new custom type we can now use on the `EmployeeType`:
+```graphql
+const EmployeeType = new GraphQLObjectType({
+  name: 'Employee',
+  fields: {
+    name: { type: GraphQLString },
+    contractType: ContractType
+  }
+});
+```
+
+Let's introduce a new type `DepartmentType`. For this type, we'll use the `ContractType` to represent the list of allowed contract types in a department:
+```graphql
+const DepartmentType = new GraphQLObjectType({
+  name: 'Department',
+  fields: {
+    name: { type: GraphQLString },
+    contractTypes: new GraphQLList(ContractType),
+  }
+});
+```
+
+## The resolve function
