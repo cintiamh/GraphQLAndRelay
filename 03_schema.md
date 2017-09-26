@@ -249,3 +249,60 @@ query ContactQuery($contactId: Int!) {
   }
 }
 ```
+
+When we want to group two objects that don't have any fields in common with a certain logic, a GraphQL union is what we can use.
+
+Example composing a resume:
+```graphql
+const EducationType = new GraphQLObjectType({
+  name: 'Education',
+  fields: () => ({
+    schoolName: { type: GraphQLString },
+    fieldOfStudy: { type: GraphQLString },
+    graduationYear: { type: GraphQLInt }
+  })
+});
+
+const ExperienceType = new GraphQLObjectType({
+  name: 'Experience',
+  fields: () => ({
+    companyName: { type: GraphQLString },
+    title: { type: GraphQLString },
+    description: { type: GraphQLString }
+  })
+});
+```
+
+We can use a union to represent a resume section that can be either an education type or a experience type:
+```graphql
+const ResumeSectionType = new GraphQLUnionType({
+  name: 'ResumeSection',
+  types: [ExperienceType, EducationType],
+  resolveType(value) {
+    if (value instanceof Experience) {
+      return ExperienceType;
+    }
+    if (value instanceof Education) {
+      return EducationType;
+    }
+  }
+})
+```
+
+When we have a union type in a GraphQL schema, we can use inline fragments to ask about the fields of the types that the union represents.
+```graphql
+query ResumeInformation {
+  ResumeSection {
+    ... on Education {
+      schoolName,
+      fieldOfStudy
+    }
+    ... on Experience {
+      companyName,
+      title
+    }
+  }
+}
+```
+
+### Type modifiers
