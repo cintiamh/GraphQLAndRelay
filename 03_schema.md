@@ -5,6 +5,7 @@
 3. [The type system](#the-type-system)
 4. [The resolve function](#the-resolve-function)
 5. [Validation](#validation)
+6. [Versioning](#versioning)
 
 In a GraphQL schema, we define the types and directives that we want the server to support.
 
@@ -635,3 +636,36 @@ An example of error message response is as follow:
   ]
 }
 ```
+
+## Versioning
+
+In GraphQL versioning can be avoided.
+
+Versioning complicates API usage and leaves the API designers with a lots of decisions that need to be made.
+
+GraphQL avoid versioning altogether. When you have new features that you need to push to new clients, just use new fields for them and keep the old fields as they are; everyone will be happy.
+
+If we want to stop supporting old fields in a schema, GraphQL has a feature to allow for deprecating those fields first.
+
+We can deprecate a GraphQL field by adding a `deprecationReason` property on it.
+
+```javascript
+const EmployeeType = new GraphQLObjectType({
+  name: 'Employee',
+  fields: () => ({
+    name: {
+      type: GraphQLString,
+      deprecationReason: 'Use nameFor instead',
+      args: {
+        upperCase: { type: GraphQLBoolean }
+      },
+      resolve: (obj, args) => {
+        let fullName = `${obj.firstName} ${obj.lastName}`;
+        return args.upperCase ? fullName.toUpperCase() : fullName;
+      }
+    },
+  })
+})
+```
+
+Deprecated fields will continue to work as normal, but the tools that work with introspective queries will know about these deprecated fields and will possibly provide warnings about using them.
