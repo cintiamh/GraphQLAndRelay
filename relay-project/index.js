@@ -17,6 +17,8 @@ MongoClient.connect(MONGO_URL, (err, db) => {
     graphiql: true
   }));
 
+  app.use(express.static('public'));
+
   app.listen(3000, () =>
     console.log('Running Express.js on port 3000')
   );
