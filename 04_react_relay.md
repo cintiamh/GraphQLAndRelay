@@ -3,6 +3,7 @@
 1. [The example GraphQL schema](#the-example-graphql-schema)
 2. [The quotes library](#the-quotes-library)
 3. [Setting up webpack](#setting-up-webpack)
+4. [Using GraphQL without Relay in React applications](#using-graphql-without-relay-in-react-applications)
 
 ## The example GraphQL schema
 
@@ -180,6 +181,7 @@ And use GraphiQL to query:
 Install npm packages:
 ```
 $ npm i webpack babel-loader babel-preset-es2015 babel-preset-react babel-preset-stage-0 --save
+$ npm i babel-core --save
 $ mkdir js
 $ touch js/app.js
 $ mkdir public
@@ -243,3 +245,47 @@ Include this line into index.js file:
 ```javascript
 app.use(express.static('public'));
 ```
+
+js/app.js file content:
+```javascript
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+class App extends React.Component {
+  static defaultProps = {
+    greeting: 'Hello'
+  };
+  render() {
+    return (
+      <div>
+        {this.props.greeting} World
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(
+  <App />,
+  document.getElementById('react')
+)
+```
+
+Install react and react-dom:
+```
+$ npm i react react-dom --save
+```
+
+In package.json include the script:
+```javascript
+"build": "webpack",
+```
+
+And run build, and then run again (make sure mongoDB is running):
+```
+$ npm run build
+$ node index.js
+```
+
+## Using GraphQL without Relay in React applications
+
+We can use GraphQL directly in a React application using a simple Ajax library.
