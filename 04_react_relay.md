@@ -4,6 +4,7 @@
 2. [The quotes library](#the-quotes-library)
 3. [Setting up webpack](#setting-up-webpack)
 4. [Using GraphQL without Relay in React applications](#using-graphql-without-relay-in-react-applications)
+5. [Relay containers](#relay-containers)
 
 ## The example GraphQL schema
 
@@ -356,3 +357,5 @@ componentDidMount() {
   .catch(ex => console.error(ex))
 }
 ```
+
+## Relay containers
