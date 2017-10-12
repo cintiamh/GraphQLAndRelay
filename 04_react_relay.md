@@ -289,3 +289,70 @@ $ node index.js
 ## Using GraphQL without Relay in React applications
 
 We can use GraphQL directly in a React application using a simple Ajax library.
+We're using a native `fetch` library.
+
+`QuotesLibrary` component lists an array of `Quote` components.
+
+`js/app.js`:
+```javascript
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Quote from './quote';
+
+class QuotesLibrary extends React.Component {
+  state = { allQuotes: [] };
+  componentDidMount() {
+    // Load the quotes list into this.state.allQuotes
+  }
+  render() {
+    return (
+      <div className="quotes-list">
+        {this.state.allQuotes.map(quote => <Quote key={quote.id} quote={quote} />)}
+      </div>
+    );
+  }
+}
+ReactDOM.render(
+  <QuotesLibrary />,
+  document.getElementById('react')
+);
+```
+
+Create the quote component:
+```
+$ touch js/quote.js
+```
+
+js/quote.js:
+```javascript
+import React from 'react';
+
+class Quote extends React.Component {
+  render() {
+    return (
+      <blockquote>
+        <p>{this.props.quote.text}</p>
+        <footer>{this.props.quote.author}</footer>
+      </blockquote>
+    );
+  }
+}
+
+export default Quote;
+```
+
+Now let's load the quotes using fetch in js/app.js inside componentDidMount:
+```javascript
+componentDidMount() {
+  fetch(`/graphql?query={
+    allQuotes {
+      id,
+      text,
+      author
+    }
+  }`)
+  .then(response => response.json())
+  .then(json => this.setState(json.data))
+  .catch(ex => console.error(ex))
+}
+```
