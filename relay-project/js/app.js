@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Relay from 'react-relay';
 
 import Quote from './quote';
 
-class QuotesLibrary extends React.Component {
+class ReactQuotesLibrary extends React.Component {
   state = { allQuotes: [] };
 
   componentDidMount() {
@@ -28,7 +29,19 @@ class QuotesLibrary extends React.Component {
   }
 }
 
+const QuotesLibrary = Relay.createContainer(ReactQuotesLibrary, {
+  fragments: {}
+});
+
+// Relay routes have nothing to do with URL routing.
+class AppRoute extends Relay.Route {
+  static routeName = 'App';
+}
+
 ReactDOM.render(
-  <QuotesLibrary />,
+  <Relay.RootContainer
+    Component={QuotesLibrary}
+    route={new AppRoute({})}
+  />,
   document.getElementById('react')
 );

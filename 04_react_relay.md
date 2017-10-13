@@ -359,3 +359,15 @@ componentDidMount() {
 ```
 
 ## Relay containers
+
+We use Relay to wrap our components with the higher-order Relay container component that makes the React component understand Relay features.
+
+In both `js/app.js` and `js/quote.js` do the following import:
+```javascript
+import Relay from 'react-relay';
+```
+
+And install the new dependencies:
+```
+$ npm i react-relay babel-relay-plugin --save
+```
