@@ -7697,24 +7697,24 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var ReactQuotesLibrary = function (_React$Component) {
-  _inherits(ReactQuotesLibrary, _React$Component);
+var QuotesLibrary = function (_React$Component) {
+  _inherits(QuotesLibrary, _React$Component);
 
-  function ReactQuotesLibrary() {
+  function QuotesLibrary() {
     var _ref;
 
     var _temp, _this, _ret;
 
-    _classCallCheck(this, ReactQuotesLibrary);
+    _classCallCheck(this, QuotesLibrary);
 
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = ReactQuotesLibrary.__proto__ || Object.getPrototypeOf(ReactQuotesLibrary)).call.apply(_ref, [this].concat(args))), _this), _this.state = { allQuotes: [] }, _temp), _possibleConstructorReturn(_this, _ret);
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = QuotesLibrary.__proto__ || Object.getPrototypeOf(QuotesLibrary)).call.apply(_ref, [this].concat(args))), _this), _this.state = { allQuotes: [] }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
-  _createClass(ReactQuotesLibrary, [{
+  _createClass(QuotesLibrary, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
       var _this2 = this;
@@ -7740,12 +7740,14 @@ var ReactQuotesLibrary = function (_React$Component) {
     }
   }]);
 
-  return ReactQuotesLibrary;
+  return QuotesLibrary;
 }(_react2.default.Component);
 
-var QuotesLibrary = _reactRelay2.default.createContainer(ReactQuotesLibrary, {
-  fragments: {}
-});
+console.log('test', _reactRelay2.default.createContainer);
+
+// const QuotesLibrary = Relay.createContainer(ReactQuotesLibrary, {
+//   fragments: {}
+// });
 
 // Relay routes have nothing to do with URL routing.
 
@@ -33909,16 +33911,16 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var ReactQuote = function (_React$Component) {
-  _inherits(ReactQuote, _React$Component);
+var Quote = function (_React$Component) {
+  _inherits(Quote, _React$Component);
 
-  function ReactQuote() {
-    _classCallCheck(this, ReactQuote);
+  function Quote() {
+    _classCallCheck(this, Quote);
 
-    return _possibleConstructorReturn(this, (ReactQuote.__proto__ || Object.getPrototypeOf(ReactQuote)).apply(this, arguments));
+    return _possibleConstructorReturn(this, (Quote.__proto__ || Object.getPrototypeOf(Quote)).apply(this, arguments));
   }
 
-  _createClass(ReactQuote, [{
+  _createClass(Quote, [{
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
@@ -33938,14 +33940,12 @@ var ReactQuote = function (_React$Component) {
     }
   }]);
 
-  return ReactQuote;
+  return Quote;
 }(_react2.default.Component);
 
-var Quote = _reactRelay2.default.createContainer(ReactQuote, {
+exports.default = _reactRelay2.default.createContainer(Quote, {
   fragments: {}
 });
-
-exports.default = Quote;
 
 /***/ })
 /******/ ]);

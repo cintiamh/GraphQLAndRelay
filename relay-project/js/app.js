@@ -4,7 +4,7 @@ import Relay from 'react-relay';
 
 import Quote from './quote';
 
-class ReactQuotesLibrary extends React.Component {
+class QuotesLibrary extends React.Component {
   state = { allQuotes: [] };
 
   componentDidMount() {
@@ -29,9 +29,11 @@ class ReactQuotesLibrary extends React.Component {
   }
 }
 
-const QuotesLibrary = Relay.createContainer(ReactQuotesLibrary, {
-  fragments: {}
-});
+console.log('test', Relay.createContainer);
+
+// const QuotesLibrary = Relay.createContainer(ReactQuotesLibrary, {
+//   fragments: {}
+// });
 
 // Relay routes have nothing to do with URL routing.
 class AppRoute extends Relay.Route {
