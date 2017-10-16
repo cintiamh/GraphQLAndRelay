@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Relay from 'react-relay';
+import Relay from 'react-relay/classic';
 
 import Quote from './quote';
 
-class ReactQuotesLibrary extends React.Component {
+class QuotesLibrary extends React.Component {
   state = { allQuotes: [] };
 
   componentDidMount() {
@@ -29,7 +29,7 @@ class ReactQuotesLibrary extends React.Component {
   }
 }
 
-const QuotesLibrary = Relay.createContainer(ReactQuotesLibrary, {
+const RelayQuotesLibrary = Relay.createContainer(QuotesLibrary, {
   fragments: {}
 });
 
@@ -38,10 +38,12 @@ class AppRoute extends Relay.Route {
   static routeName = 'App';
 }
 
+const appRoute = new AppRoute({});
+
 ReactDOM.render(
   <Relay.RootContainer
-    Component={QuotesLibrary}
-    route={new AppRoute({})}
+    Component={RelayQuotesLibrary}
+    route={appRoute}
   />,
   document.getElementById('react')
 );
