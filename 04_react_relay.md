@@ -364,10 +364,39 @@ We use Relay to wrap our components with the higher-order Relay container compon
 
 In both `js/app.js` and `js/quote.js` do the following import:
 ```javascript
-import Relay from 'react-relay';
+import Relay from 'react-relay/classic';
 ```
 
 And install the new dependencies:
 ```
 $ npm i react-relay babel-relay-plugin --save
+```
+
+Change the code in `js/app.js`:
+```javascript
+// Wrap the React component in a Relay container
+const RelayQuotesLibrary = Relay.createContainer(QuotesLibrary, {
+  fragments: {}
+});
+
+// Relay routes have nothing to do with URL routing.
+class AppRoute extends Relay.Route {
+  static routeName = 'App';
+}
+const appRoute = new AppRoute({});
+
+ReactDOM.render(
+  <Relay.RootContainer
+    Component={RelayQuotesLibrary}
+    route={appRoute}
+  />,
+  document.getElementById('react')
+);
+```
+
+And also change the code inside `quote.js`:
+```javascript
+export default Relay.createContainer(Quote, {
+  fragments: {}
+});
 ```

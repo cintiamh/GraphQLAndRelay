@@ -1,5 +1,5 @@
 import React from 'react';
-import Relay from 'relay';
+import Relay from 'react-relay/classic';
 
 class Quote extends React.Component {
   render() {

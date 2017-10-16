@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Relay from 'relay';
+import Relay from 'react-relay/classic';
 
 import Quote from './quote';
 
