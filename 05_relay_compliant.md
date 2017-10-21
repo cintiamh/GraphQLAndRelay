@@ -55,3 +55,93 @@ Relay.QL `query { ... }` => {}
 4. Use these types to generate the desired query object and return it.
 
 Sounds simple, but requires a little configuration to make it efficient.
+
+A Relay application will have multiple `Relay.QL` calls.
+
+Instead of asking the GraphQL server about field types every time we want to convert a query, we can optimize this server process by caching the full schema structure into a big JSON object on the server and using the cache for the `Relay.QL` calls.
+
+Advantage: Speeds up the webpack bundle process.
+Disadvantage: need to update the cache every time schema changes.
+
+In the `index.js` file include the following:
+```javascript
+const fs = require('fs');
+const path = require('path');
+const { introspectionQuery } = require('graphql/utilities');
+```
+
+You can actually run `console.log(introspectionQuery)` can copy the resulting text and run it on GraphiQL.
+
+We can use the `graphql()` function to ask our schema for its response for the `introspectionQuery`.
+
+Import the `graphql()` function again:
+```javascript
+const { graphql } = require('graphql');
+```
+
+Then place this snippet right before we make the express app listen on port 3000:
+```javascript
+graphql(mySchema, introspectionQuery)
+  .then(result => {
+    fs.writeFileSync(
+      path.join(__dirname, 'cache/schema.json'),
+      JSON.stringify(result, null, 2)
+    );
+    console.log('Generated cached schema.json file');
+  })
+  .catch(console.error);
+```
+
+Create the cache folder:
+```
+$ mkdir cache
+```
+
+Under the `cache` directory we should see the newly generated `schema.json` file.
+
+You can include the `schema.json` file in your `.gitignore` list.
+
+We are going to use `babel-relay-plugin` to read the cached content once and re-use it from memory to speed up the calls to `Relay.QL`.
+
+Create a `babelRelayPlugin.js` file:
+```
+$ touch babelRelayPlugin.js
+```
+
+And add the following content:
+```javascript
+const babelRelayPlugin = require('babel-relay-plugin');
+const schema = require('./cache/schema.json');
+
+module.exports = babelRelayPlugin(schema.data);
+```
+
+To make use of this new plugin, add the plugins line into `.babelrc` file:
+```json
+{
+  "passPerPreset": true,
+  "presets": [
+    {
+      "plugins": ["./babelRelayPlugin"]
+    },
+    "react",
+    "es2015",
+    "stage-0"
+  ]
+}
+```
+
+The `passPerPreset` option tells Babel to execute the presets one after the other.
+
+Now you should be able to run this anywhere inside `app.js`:
+```javascript
+console.log(
+  Relay.QL `query AllQuotes {
+    allQuotes {
+      id
+      text
+      author
+    }
+  }`
+)
+```

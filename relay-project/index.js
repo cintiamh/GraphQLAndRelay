@@ -2,6 +2,12 @@ const { MongoClient } = require('mongodb');
 const assert = require('assert');
 const graphqlHTTP = require('express-graphql');
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const { introspectionQuery } = require('graphql/utilities');
+const { graphql } = require('graphql');
+
+console.log(introspectionQuery);
 
 const app = express();
 const mySchema = require('./schema/main');
@@ -18,6 +24,15 @@ MongoClient.connect(MONGO_URL, (err, db) => {
   }));
 
   app.use(express.static('public'));
+
+  graphql(mySchema, introspectionQuery)
+    .then(result => {
+      fs.writeFileSync(
+        path.join(__dirname, 'cache/schema.json'),
+        JSON.stringify(result, null, 2)
+      );
+    })
+    .catch(console.error);
 
   app.listen(3000, () =>
     console.log('Running Express.js on port 3000')

@@ -20361,6 +20361,34 @@ var QuotesLibrary = function (_React$Component) {
       }).catch(function (ex) {
         return console.error(ex);
       });
+
+      console.log(function () {
+        return {
+          children: [{
+            fieldName: 'id',
+            kind: 'Field',
+            metadata: {},
+            type: 'String'
+          }, {
+            fieldName: 'text',
+            kind: 'Field',
+            metadata: {},
+            type: 'String'
+          }, {
+            fieldName: 'author',
+            kind: 'Field',
+            metadata: {},
+            type: 'String'
+          }],
+          fieldName: 'allQuotes',
+          kind: 'Query',
+          metadata: {
+            isPlural: true
+          },
+          name: 'AllQuotes',
+          type: 'Quote'
+        };
+      }());
     }
   }, {
     key: 'render',

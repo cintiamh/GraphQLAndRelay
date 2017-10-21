@@ -18,6 +18,16 @@ class QuotesLibrary extends React.Component {
     .then(response => response.json())
     .then(json => this.setState(json.data))
     .catch(ex => console.error(ex))
+
+    console.log(
+      Relay.QL `query AllQuotes {
+        allQuotes {
+          id
+          text
+          author
+        }
+      }`
+    )
   }
 
   render() {
