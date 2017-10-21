@@ -1,6 +1,7 @@
 # Making GraphQL Queries Relay-Compliant
 
 1. [Transforming GraphQL queries for Relay](#transforming-graphql-queries-for-relay)
+2. [Root-level field for the quotes library](#root-level-field-for-the-quotes-library)
 
 ## Transforming GraphQL queries for Relay
 
@@ -145,3 +146,5 @@ console.log(
   }`
 )
 ```
+
+## Root-level field for the quotes library
